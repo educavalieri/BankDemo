@@ -2,6 +2,8 @@ package com.cavalieri.BanckDemo.services;
 
 import com.cavalieri.BanckDemo.dtos.AccountDTO;
 import com.cavalieri.BanckDemo.entities.Account;
+import com.cavalieri.BanckDemo.exceptions.EntityNotHaveFoundsException;
+import com.cavalieri.BanckDemo.exceptions.ResourceNotFondException;
 import com.cavalieri.BanckDemo.repositories.AccountRepository;
 import com.cavalieri.BanckDemo.repositories.ClientRepository;
 import org.modelmapper.ModelMapper;
@@ -25,14 +27,18 @@ public class AccountService {
 
     @Transactional
     public List<AccountDTO> findAllService(){
-        List<Account> entity = accountRepository.findAll();
-        List<AccountDTO> dto = entity.stream().map(x -> modelMapper.map(x, AccountDTO.class)).collect(Collectors.toList());
-        return dto;
+        try {
+            List<Account> entity = accountRepository.findAll();
+            List<AccountDTO> dto = entity.stream().map(x -> modelMapper.map(x, AccountDTO.class)).collect(Collectors.toList());
+            return dto;
+        } catch (Exception e) {
+            throw new RuntimeException("error");
+        }
     }
 
     @Transactional
     public AccountDTO findByIDService(Long id){
-        Account entity = accountRepository.findById(id).get();
+        Account entity = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFondException("entity not found"));
         AccountDTO dto = modelMapper.map(entity, AccountDTO.class);
         return dto;
     }
@@ -40,6 +46,9 @@ public class AccountService {
     @Transactional
     public AccountDTO withdraw(Long id, Integer draw){
         Account entity = accountRepository.findById(id).get();
+        if(draw >= entity.getTotalAccount()){
+            throw new EntityNotHaveFoundsException("not have found");
+        }
         Integer total = entity.getTotalAccount();
         entity.setTotalAccount(total - draw);
         entity = accountRepository.save(entity);

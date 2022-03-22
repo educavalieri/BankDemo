@@ -1,8 +1,7 @@
-package com.cavalieri.BanckDemo.configures;
+package com.cavalieri.BanckDemo.config;
 
 import com.cavalieri.BanckDemo.dtos.ClientDTO;
 import com.cavalieri.BanckDemo.entities.Client;
-import lombok.Builder;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
